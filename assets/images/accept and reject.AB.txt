@@ -1,0 +1,437 @@
+import React,{useState, useEffect} from 'react';
+import {View, Text, Image, TouchableOpacity,StatusBar,colorOpacityModal } from 'react-native';
+import { styles } from './styles';
+import { useNavigation } from '@react-navigation/native';
+import Autolink from 'react-native-autolink';
+import AsyncStorage from '@react-native-community/async-storage';
+import Modal from "react-native-modal";
+import {jobacc } from "../Apicall";
+import Spinner from 'react-native-spinkit';
+import FastImage from 'react-native-fast-image';
+const Jobdetails = ({route}) =>{
+const navigation = useNavigation();
+ const [is_accept, setaccept] = useState(false)
+const [is_reject, setreject] = useState(false)
+const [is_yes, setyes] = useState(false)
+const [submintted, setsubmitted] = useState(false)
+const [title,settitle]=useState('')
+const [hospital,sethospital]=useState('')
+const [id, setid] = useState('')
+const [date,setdate]=useState('')
+const [time,settime]=useState('')
+const [sum,setsum]=useState('')
+const [details,setdetails]=useState('')
+const [cost,setcost]=useState('')
+const [endtime, setendtime] = useState('');
+const [loading, setLoading] = useState(false);
+const [location, setlocation] = useState('');
+const [all, setall] = useState('');
+const [is_optin, setisoptin] =useState('0')
+const [type, settype] = useState('')
+const [status, setstuts] = useState('')
+const [status_open, setstatus_open] = useState(false);
+const [jobtype, setjobtype] = useState(false);
+const[iscompleted, setiscompleted] = useState('')
+const [type1jobdata, settype1jobdata] = useState('');
+const [datemodel, setdatemodel] = useState(false)
+const [modeldata, setmodeldata] = useState('')
+const [showButtons, setShowButtons] = useState(false);
+const goBack = () => {
+        navigation.goBack();
+        };
+useEffect(() => {
+        async function fetchData() {
+            setLoading(true)
+            const alljobdata = route.params
+            console.log('alljobdata---->>>>', alljobdata)
+            setall(alljobdata)
+            settitle(alljobdata.title)
+            setid(alljobdata.id)
+            sethospital(alljobdata.hospital)
+            setdate(alljobdata.date)
+            settime(alljobdata.time)
+            setsum(alljobdata.summary)
+            setdetails(alljobdata.details)
+            setcost(alljobdata.cost)
+            setstuts(alljobdata.status)
+            setlocation(alljobdata.location_link)
+            setisoptin(alljobdata.is_optin)
+            settype(alljobdata.type)
+            setstatus_open(type1jobdata.status_open)
+            console.log('alljobdata.location_link', alljobdata.location_link)
+            console.log('status_open',alljobdata.status_open);
+            setendtime(alljobdata.end_time)
+            setjobtype(alljobdata.type)
+            settype1jobdata(alljobdata.type1jobdata)
+            console.log(alljobdata.jobtype)
+            var hours = new Date().getHours(); //Current Hours
+            var min = new Date().getMinutes(); //Current Minutes
+            var jdate = new Date();
+const formattedDate = jdate.toLocaleDateString('en-GB', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+            }).split('/');
+const newdate = '20'+formattedDate[2]+'-'+formattedDate[0]+'-'+formattedDate[1]
+const dateArray = alljobdata.alldate.split(',');
+                for(let i=0;i<dateArray.length;i++){
+                //console.log('dateArray',dateArray[i]);
+                const finaldate = new Date(newdate);
+                //console.log('Date.parse(newdate)',finaldate);
+                if (hours + ':' + min > alljobdata.end_time &&  new Date(newdate)> Date.parse(dateArray[i])) {
+                   setiscompleted(false);
+                }else{
+                    setiscompleted(true);
+                }
+            }
+        setLoading(false)
+        }
+        fetchData();
+    }, [])
+    const showmore = (alldate) => {
+        setdatemodel(!datemodel);
+        setmodeldata(alldate);
+    }
+const accept = async (id, pass) => {
+        setsubmitted(true)
+        const result1 = await AsyncStorage.getItem('logindata')
+        const screenData = JSON.parse(result1)
+        global.userid = screenData.id
+        if (pass == 2) {
+            setLoading(true)
+            setreject(true)
+            setLoading(false)
+} else {
+            setLoading(true)
+            setaccept(true)
+            setLoading(false)
+        }
+}
+
+    const acpt = () => {
+        setaccept(false)
+    }
+    const rejt = () => {
+        setreject(false)
+    }
+    const acceptyes = (passid) => {
+        const data = {
+            user_id: global.userid,
+            status: 1,
+            job_id: passid
+        }
+        jobacc(global.url + 'job_action.php', data).then(res => {
+            setaccept(false)
+            setyes(true)
+           })
+    }
+    const rejectyes = (passid) => {
+        const data = {
+            user_id: global.userid,
+            status: 2,
+            job_id: passid
+        };
+        jobacc(global.url + 'job_action.php', data).then(res => {
+            setreject(false)
+            navigation.navigate('Home')
+        })
+    }
+
+    const backto = () => {
+        setyes(false)
+        navigation.navigate('Findwork')
+    }
+    const convertdate = (date) => {
+
+        const monthNames = [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December"
+        ];
+        const apiDate = new Date(date);
+        const monthNumber = apiDate.getMonth() + 1;
+        const monthName = monthNames[monthNumber - 1];
+
+        return `${apiDate.getDate()}-${monthName}-${apiDate.getFullYear()}`
+    }
+    const rejectoraccept = async (pass, passid, id) => {
+        const result1 = await AsyncStorage.getItem('logindata')
+        const screenData = JSON.parse(result1)
+
+        if (id == 2) {
+            setLoading(true)
+            const data = {
+                user_id: screenData.id,
+                status: 2,
+                job_id: passid
+
+            };
+            jobacc(global.url + 'job_action.php', data).then(res => {
+                setLoading(false)
+                navigation.navigate('Home')
+
+            })
+        } else {
+            setLoading(true)
+            const data = {
+                user_id: screenData.id,
+                status: 1,
+                job_id: passid
+            };
+            jobacc(global.url + 'job_action.php', data).then(res => {
+
+                setLoading(false)
+                setaccept(true)
+                setpass(pass)
+            })
+        }
+    }
+
+
+return(
+    <View style={styles.container}>
+         {
+                is_accept == true || is_yes == true || is_reject == true ?
+                    <StatusBar backgroundColor='#4d4d4d' barStyle="dark-content" />
+                    :
+                    <StatusBar backgroundColor='#ffffff' barStyle="dark-content" />
+            }
+    <View>
+       <View style={styles.viewstyle}>
+        <View style={{flexDirection:'row', marginTop:30}}>
+        <TouchableOpacity  onPress={goBack}>
+        <Image style={styles.img} source={require('../../image/back.png')} />
+        </TouchableOpacity>
+        <Text style={styles.textstyle}>Job Details</Text>
+     </View>
+      </View> 
+    </View>
+    <View style={styles.textviwe}>
+    <Text style={styles.Doctortext}>{title}</Text>
+    <Text style={styles.jobtext}>{hospital}</Text>
+    </View>
+    <View style={{flexDirection:'row', marginLeft:20, justifyContent:'space-between', marginRight:80 
+}}>
+<View>
+    <Text style={styles.location}>Location</Text>
+    <Text  style={styles.ttshtext}>{location}</Text>
+</View>
+<View>
+    <Text style={styles.location}> salary</Text>
+    <Text style={styles.ttshtext}>{cost}</Text>
+</View>
+    </View>
+    <View style={{flexDirection:'row',margin:20, marginLeft:20, justifyContent:'space-between', marginRight:80 
+}}>
+<View>
+    <Text style={styles.location}>Date</Text>
+    {all.more ?
+        <TouchableOpacity onPress={() => showmore(all.alldate)}>
+         <Text style={styles.name}>{all.date} & more</Text>
+         </TouchableOpacity> :
+         <Text style={styles.name}>{all.date}</Text>
+                                }
+   
+</View>
+<View>
+
+    <View style={styles.imgearoundview}>
+     <Image style={styles.imgclock} source={require('../../image/clock.png')} /> 
+    </View>
+</View>
+    </View> 
+    <View style={styles.textviwe}> 
+    <Text style={styles.location}>Time</Text>
+    <Text  style={styles.ttshtext}>{all.time}-{all.end_time}</Text>
+    </View>
+    <View style={[styles.viewstyle3,{marginTop:10}]}>
+        <Text style={styles.datetextstyle}>Job Summary</Text>  
+      </View> 
+      <Autolink
+                        component={View}
+                        text={sum}
+                        style={styles.textstylelorem}/>
+
+{is_optin == 0 && jobtype == 2 ? (
+    <View style={styles.buttonView}>
+        <TouchableOpacity onPress={() => rejectoraccept(all, all.id, 1)}>
+              <Text style={styles.buttontext}>Apply</Text>
+    </TouchableOpacity>
+   </View>
+) : null}
+    
+    
+    {is_optin == 1 && jobtype ==2 ? (
+    <View style={styles.buttonView}>
+        <TouchableOpacity>
+              <Text style={styles.buttontext}>Applied</Text>
+    </TouchableOpacity>
+   </View>
+) : null}
+ 
+
+<View>
+    <View>
+{jobtype == 1 && status == 0 && (
+    
+<View style={{flexDirection:'row',justifyContent:'center', marginTop:50}}>
+   <View style={[styles.twobuttonview,{borderColor:'#B00000',
+                borderWidth:2,}]}>
+    <TouchableOpacity onPress={() => rejt(all, all.id, 2)}>
+        <Text style={[styles.textButton,{color:'#B00000'}]}>Reject</Text>
+      </TouchableOpacity>
+        </View>
+        <View style={[styles.twobuttonview,{backgroundColor:'#007528'}]}>
+          <TouchableOpacity onPress={() => acpt(all, all.id, 1)} >
+           <Text style={styles.textButton}>Accept</Text>
+            </TouchableOpacity>
+      </View>  
+
+  </View>
+  )}
+  </View>
+  
+  </View>
+
+
+<Modal isVisible={is_accept}>
+<View style={styles.mainviewstyle}>
+<View>
+       <View style={[styles.viewstyle,{ height:150}]}>
+        <View style={{flexDirection:'row', marginTop:30}}>
+        <TouchableOpacity  onPress={goBack}>
+        <Image style={styles.img} source={require('../../image/back.png')} />
+        </TouchableOpacity>
+        <Text style={styles.textstyle}>Job Details</Text>
+     </View>
+      </View> 
+    </View> 
+    <View style={styles.textviwe}>
+    <Text style={styles.Doctortext}>{title}</Text>
+    <Text style={styles.jobtext}>{hospital}</Text>
+    </View>  
+    <View style={{flexDirection:'row', marginLeft:20, justifyContent:'space-between', marginRight:80 
+}}>
+<View>
+    <Text style={styles.location}>Location</Text>
+    <Text  style={styles.ttshtext}>{location}</Text>
+</View>
+<View>
+    <Text style={styles.location}> salary</Text>
+    <Text style={styles.ttshtext}>{cost}</Text>
+</View>
+    </View>
+  
+
+<View>
+    <Text style={[styles.location,{marginLeft:20, marginTop:20}]}>Date</Text>
+    {all.more ?
+        <TouchableOpacity onPress={() => showmore(all.alldate)}>
+         <Text style={[styles.ttshtext,{marginLeft:20}]}>{all.date} & more</Text>
+         </TouchableOpacity> :
+         <Text style={styles.ttshtext}>{all.date}</Text>
+                                }
+   
+</View>
+<View>
+</View>
+<View style={[styles.viewstyle3,{marginTop:10}]}>
+        <Text style={styles.datetextstyle}>Job Summary</Text>  
+      </View> 
+      <Autolink
+                        component={View}
+                        text={sum}
+                        style={styles.textstylelorem}/>
+  <View style={{ flexDirection: 'row', justifyContent:'space-around', marginTop:70}}>
+
+<View style={[styles.twobuttonview,{borderColor:'#B00000',
+                borderWidth:2,}]}>
+    <TouchableOpacity onPress={() => onPress={rejt}}>
+        <Text style={[styles.textButton,{color:'#B00000'}]}>Reject</Text>
+      </TouchableOpacity>
+        
+</View>
+<View style={[styles.twobuttonview,{backgroundColor:'#007528'}]}>
+    <TouchableOpacity  onPress={() => acceptyes(id)}>
+        <Text style={styles.textButton}>Accept</Text>
+      </TouchableOpacity>
+        
+</View>
+
+</View>
+</View>
+</Modal>
+<View>
+{/* <Modal isVisible={is_reject}>
+<View style={styles.mainviewstyle}>
+<Text style={styles.conftext}>Confirmation</Text>
+<Text style={styles.textplz}>Please confirm that you would like to accept the job? </Text>
+<View style={{ flexDirection: 'row', justifyContent:'space-around', marginTop:20}}>
+    <View style={styles.yesnobutton}>
+   <TouchableOpacity onPress={acpt}>
+    <Text style={styles.yesnotextstyle}>No</Text>
+    </TouchableOpacity>
+    </View>
+    <View style={styles.yesnobutton}>
+    <TouchableOpacity  onPress={() => rejectyes(id)}>
+    <Text style={styles.yesnotextstyle}>Yes</Text>
+    </TouchableOpacity>
+    </View>
+</View>
+</View>
+</Modal> */}
+</View>
+<View>
+<Modal isVisible={is_yes}>
+<View style={styles.mainviewstyleBACK}>
+<Text style={styles.conftext}>Success!</Text>
+<Text style={styles.textplz}>You have a new job, please see job details for full details. </Text>
+<View style={styles.backtojobview}>
+ <TouchableOpacity onPress={backto}>
+ <Text style={styles.btntxt}>Add to Job</Text>
+ </TouchableOpacity>
+</View>
+</View>
+</Modal>
+</View>
+<Modal isVisible={datemodel}>
+<View style={styles.datemodel}>
+<View style={styles.backview}> 
+<View style={{ flexDirection:"row", justifyContent:'space-around'}}>
+<Text style={styles.datetext}>All Dates</Text>      
+<TouchableOpacity onPress={() => showmore('')} >
+ <FastImage style={styles.imgclear} source={require('../../image/clear.png')} />
+</TouchableOpacity>   
+
+ </View> 
+ </View>    
+ <View>
+ {modeldata.split(',').map((i, index) => (
+       <Text style={styles.showdatestyle}>{convertdate(i)}</Text>
+     ))}
+ </View>
+    </View>
+        </Modal>
+{/* {loading ?
+                <View style={styles.spinner}>
+                    <Spinner
+                        style={styles.loader}
+                        color={'#16294e'}
+                        size={70}
+                        type={'Bounce'}
+                    />
+                </View>
+                : null} */}
+ </View>
+    )
+}
+export default Jobdetails;

@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "630270932926",
+    "project_id": "mymediator",
+    "storage_bucket": "mymediator.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:630270932926:android:172af2cddc87ad354f2bef",
+        "android_client_info": {
+          "package_name": "com.mymediato"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_ThqVnXGrnNZjjciOtyqOEcdhfqqShvM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:630270932926:android:bcca4d828fae95444f2bef",
+        "android_client_info": {
+          "package_name": "com.mymediator"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_ThqVnXGrnNZjjciOtyqOEcdhfqqShvM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
